@@ -16,11 +16,12 @@ require_once 'controller.php';
 
 	http_response_code($code);
 	header('Content-Type: application/json');
-	if (empty($data)) {
-		$data = [];
+
+	$response = ['code' => $code];
+	if (!empty($data)) {
+		$response['data'] = $data;
 	}
-	$data['code'] = $code;
-	print(json_encode($data));
+	print(json_encode($response));
 })();
 
 
