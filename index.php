@@ -1,12 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 require_once 'controller.php';
 
+const PLACE_ORDER_ROUTE = 'place_order';
 
 
-(function () {
+function init() {
+	// todo init db connections
+}
+
+
+function serve() {
 	switch ($_GET['action'] ?? '') {
-		case 'place_order':
+		case PLACE_ORDER_ROUTE:
 			list($code, $data) = place_order_process();
 			break;
 		default:
@@ -22,8 +30,7 @@ require_once 'controller.php';
 		$response['data'] = $data;
 	}
 	print(json_encode($response));
-})();
+}
 
 
-
-
+serve();

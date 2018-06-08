@@ -17,13 +17,12 @@ function place_order_process() {
 	}
 	$userId = getCurrentUserId();
 	$name = trim($_POST['name'] ?? '');
-	$price = (int) $_POST['price'] ?? 0;
+	$price = (int) ($_POST['price'] ?? 0);
 
 	$validateResult = _place_order_validation($userId, $name, $price);
-	if ($validateResult != True) {
+	if (!is_bool($validateResult) || !$validateResult) {
 		return $validateResult;
 	}
-
 	return _place_order(getCurrentUserId(), $name, $price);
 }
 
@@ -34,7 +33,7 @@ function _place_order_validation($userId, $name, $price) {
 		return [403, ['invalid role for this action']];
 	}
 	// check fields
-	if (empty($name) || mb_strlen($name) > 255) {
+	if (empty($name) || strlen($name) > 255) {
 		return [400, ['invalid name']];
 	}
 	if (empty($price) || $price > PHP_INT_MAX) {
