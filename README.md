@@ -17,4 +17,5 @@ $ curl -X 'POST' --data "name=sdsdsd&price=1000" "localhost:8080/index.php?actio
 - place order frontend
 - close order backend
 - close order frontend
+- mysql profiling
 - cleaning

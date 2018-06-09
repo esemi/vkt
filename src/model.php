@@ -149,3 +149,20 @@ function createOrder($ownerUserId, $name, $price) {
 		[$ownerUserId, $name, $preparedAmount]
 	);
 }
+
+function closeOrder($orderId, $customerUserId) {
+	return sql_execute(
+		DB_USER,
+		'update `order` set customer_user_id = ? where id = ? AND owner_user_id != ? AND customer_user_id IS NULL',
+		[$customerUserId, $orderId, $customerUserId]
+	);
+}
+
+function getOrder($orderId) {
+	return sql_execute(
+		DB_ORDER,
+		'select id, owner_user_id, customer_user_id from `order` where id = ?',
+		[$orderId],
+		True
+	)[0] ?? null;
+}

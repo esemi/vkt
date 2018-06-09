@@ -19,6 +19,7 @@ CREATE TABLE  IF NOT EXISTS `order`
 (
   id int PRIMARY KEY AUTO_INCREMENT,
   owner_user_id int,
+  customer_user_id int DEFAULT NULL,
   name varchar(255),
   price int
 );

@@ -85,3 +85,33 @@ function _place_order($userId, $name, $price) {
 }
 
 
+function close_order_process() {
+	if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+		return [405, null];
+	}
+	$userId = getCurrentUserId();
+	$orderId = (int) ($_POST['order'] ?? 0);
+
+	$validateResult = _close_order_validation($userId, $orderId);
+	if (is_array($validateResult)) {
+		return $validateResult;
+	}
+	return _place_order(getCurrentUserId(), $name, $price);
+}
+
+function _close_order_validation($userId, $orderId) {
+	$userRoleCheckResult = checkUserRole($userId, ROLE_CUSTOMER);
+	if (!$userRoleCheckResult) {
+		return [403, ['invalid role for this action']];
+	}
+	if (empty($orderId)) {
+		return [400, ['invalid order id']];
+	}
+
+	$order = getOrder($orderId);
+	if (empty($order)) {
+		return [400, ['invalid order id']];
+	}
+
+	return True;
+}
