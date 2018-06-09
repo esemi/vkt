@@ -22,3 +22,6 @@ CREATE TABLE  IF NOT EXISTS `order`
   name varchar(255),
   price int
 );
+
+INSERT INTO vk_test.user (id, role, balance) VALUES (1, 1, 0);
+INSERT INTO vk_test.user (id, role, balance) VALUES (2, 0, 0);

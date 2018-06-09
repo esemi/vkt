@@ -12,6 +12,7 @@ class ControllerTest extends TestCase
 {
 	// todo fixture it
 	const MERCHANT_USERID = 1;
+	const CUSTOMER_USERID = 2;
 	const TEST_BALANCE = 123;
 
 	public function provider_place_order_validation() {
@@ -54,5 +55,23 @@ class ModelTest extends TestCase {
 	public function test_add_transaction_smoke() {
 		$res = addTransaction(ControllerTest::MERCHANT_USERID, 100);
 		$this->assertTrue($res);
+	}
+
+	public function provider_check_user_role() {
+		return [
+			[0, 0, False],
+			[ControllerTest::MERCHANT_USERID, ROLE_MERCHANT, True],
+			[ControllerTest::MERCHANT_USERID, ROLE_CUSTOMER, False],
+			[ControllerTest::CUSTOMER_USERID, ROLE_MERCHANT, False],
+			[ControllerTest::CUSTOMER_USERID, ROLE_CUSTOMER, True],
+		];
+	}
+
+	/**
+	 * @dataProvider provider_check_user_role
+	 */
+	public function test_check_user_role($userId, $role, $expected) {
+		$res = checkUserRole($userId, $role);
+		$this->assertEquals($res, $expected);
 	}
 }

@@ -2,6 +2,7 @@
 
 const ROLE_CUSTOMER = 0;
 const ROLE_MERCHANT = 1;
+
 const AMOUNT_FACTOR = 1000;  //system float point for all prices
 const MARGIN_FACTOR = 2;  // system price margin in percents
 
@@ -34,6 +35,10 @@ function initDB() {
 	return True;
 }
 
+/**
+ * @param $name string
+ * @return null|PDO
+ */
 function getDb($name) {
 	global $dbConnections;
 	if (empty($dbConnections)) {
@@ -57,24 +62,36 @@ function decodeAmount($amount) {
 	return intval($amount / AMOUNT_FACTOR);
 }
 
-function sql_execute($db, $query) {
-	$params = array_slice(func_get_args(), 2);
+function sql_execute($db, $query, $params=[], $fetch=False) {
 	$conn = getDb($db);
 	$stmt = $conn->prepare($query);
-	return $stmt->execute($params);
+	$execute = $stmt->execute($params);
+	if ($execute && $fetch) {
+		return $stmt->fetchAll();
+	}
+	return $execute;
 }
 
 function checkUserRole($userId, $role) {
 	if (empty($userId)) {
 		return False;
 	}
-	$userRow = sql_execute('select id from `user` where id = ? AND role = ?', $userId, $role);
+	$userRow = sql_execute(
+		DB_USER,
+		'select id from `user` where id = ? AND role = ?',
+		[$userId, $role],
+		True
+	);
 	return !empty($userRow);
 }
 
 function addTransaction($userId, $amount) {
 	$preparedAmount = encodeAmount($amount);
-	return sql_execute(DB_TRANSACTION, 'insert into transaction (user_id, date_create, amount) values (?, UTC_TIMESTAMP, ?)', $userId, $preparedAmount);
+	return sql_execute(
+		DB_TRANSACTION,
+		'insert into transaction (user_id, date_create, amount) values (?, UTC_TIMESTAMP, ?)',
+		[$userId, $preparedAmount]
+	);
 }
 
 function increaseUserBalance($userId, $amount, $deductMargin=False) {
