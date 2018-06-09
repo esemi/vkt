@@ -74,4 +74,40 @@ class ModelTest extends TestCase {
 		$res = checkUserRole($userId, $role);
 		$this->assertEquals($res, $expected);
 	}
+
+	public function test_get_user_balance() {
+		$currentBalance = getUserBalance(0);
+		$this->assertEquals(0, $currentBalance);
+	}
+
+	/**
+	 * @depends test_get_user_balance
+	 */
+	public function test_increase_user_balance() {
+		$currentBalance = getUserBalance(0);
+		$this->assertEquals(0, $currentBalance);
+
+		$currentBalance = getUserBalance(ControllerTest::MERCHANT_USERID);
+		$res = increaseUserBalance(ControllerTest::MERCHANT_USERID, ControllerTest::TEST_BALANCE);
+		$this->assertTrue($res);
+
+		$this->assertEquals(
+			$currentBalance + ControllerTest::TEST_BALANCE,
+			getUserBalance(ControllerTest::MERCHANT_USERID)
+		);
+	}
+
+	/**
+	 * @depends test_increase_user_balance
+	 */
+	public function test_decrease_user_balance() {
+		$currentBalance = getUserBalance(ControllerTest::MERCHANT_USERID);
+		$res = decreaseUserBalance(ControllerTest::MERCHANT_USERID, ControllerTest::TEST_BALANCE);
+		$this->assertTrue($res);
+
+		$this->assertEquals(
+			$currentBalance - ControllerTest::TEST_BALANCE,
+			getUserBalance(ControllerTest::MERCHANT_USERID)
+		);
+	}
 }

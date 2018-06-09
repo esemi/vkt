@@ -94,9 +94,23 @@ function addTransaction($userId, $amount) {
 	);
 }
 
+function getUserBalance($userId) {
+	$userRow = sql_execute(
+		DB_USER,
+		'select balance from `user` where id = ?',
+		[$userId],
+		True
+	);
+	if ($userRow) {
+		return decodeAmount($userRow[0]->balance);
+	} else {
+		return 0;
+	}
+}
+
 function increaseUserBalance($userId, $amount, $deductMargin=False) {
 	$preparedAmount = encodeAmount($amount);
-	$res = sql_execute('update user set balance = balance + ? where id = ?', $preparedAmount, $userId);
+	$res = sql_execute(DB_USER,'update user set balance = balance + ? where id = ?', [$preparedAmount, $userId]);
 	if ($res) {
 		try {
 			addTransaction($userId, $amount);
@@ -109,7 +123,10 @@ function increaseUserBalance($userId, $amount, $deductMargin=False) {
 
 function decreaseUserBalance($userId, $amount) {
 	$preparedAmount = encodeAmount($amount);
-	$res = sql_execute('update user set balance = balance - ? where id = ? AND balance >= ?', $preparedAmount, $userId, $preparedAmount);
+	$res = sql_execute(
+		DB_USER,
+		'update user set balance = balance - ? where id = ? AND balance >= ?',
+		[$preparedAmount, $userId, $preparedAmount]);
 	if ($res) {
 		try {
 			addTransaction($userId, $amount);
