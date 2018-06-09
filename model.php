@@ -66,10 +66,14 @@ function sql_execute($db, $query, $params=[], $fetch=False) {
 	$conn = getDb($db);
 	$stmt = $conn->prepare($query);
 	$execute = $stmt->execute($params);
-	if ($execute && $fetch) {
-		return $stmt->fetchAll();
+	if ($execute) {
+		if ($fetch) {
+			return $stmt->fetchAll();
+		} else {
+			return $stmt->rowCount();
+		}
 	}
-	return $execute;
+	return False;
 }
 
 function checkUserRole($userId, $role) {
@@ -108,6 +112,7 @@ function getUserBalance($userId) {
 	}
 }
 
+
 function increaseUserBalance($userId, $amount, $deductMargin=False) {
 	$preparedAmount = encodeAmount($amount);
 	$res = sql_execute(DB_USER,'update user set balance = balance + ? where id = ?', [$preparedAmount, $userId]);
@@ -139,5 +144,9 @@ function decreaseUserBalance($userId, $amount) {
 
 function createOrder($ownerUserId, $name, $price) {
 	$preparedAmount = encodeAmount($price);
-	return sql_execute('insert into `order` (owner_user_id, name, price) values (?, ?, ?)', $ownerUserId, $name, $preparedAmount);
+	return sql_execute(
+		DB_ORDER,
+		'insert into `order` (owner_user_id, name, price) values (?, ?, ?)',
+		[$ownerUserId, $name, $preparedAmount]
+	);
 }

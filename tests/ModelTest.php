@@ -1,50 +1,13 @@
 <?php
 
-require_once 'controller.php';
-require_once 'model.php';
+require_once __DIR__ . '/../controller.php';
+require_once __DIR__ . '/../model.php';
+require_once 'ControllerTest.php';
 
 use PHPUnit\Framework\TestCase;
 
-/*
- * Нет, я понимаю почему на проде не ООП, но тесты то на локалке я погонять могу?)
- */
-class ControllerTest extends TestCase
+class ModelTest extends TestCase
 {
-	// todo fixture it
-	const MERCHANT_USERID = 1;
-	const CUSTOMER_USERID = 2;
-	const TEST_BALANCE = 123;
-
-	public function provider_place_order_validation() {
-		return [
-			[0, '', '', [403, ['invalid role for this action']]],
-			[ControllerTest::MERCHANT_USERID, '', '', [400, ['invalid name']]],
-			[ControllerTest::MERCHANT_USERID, 'valid name', '', [400, ['invalid price']]],
-			[ControllerTest::MERCHANT_USERID, 'valid name', '100500', True],
-		];
-	}
-
-	/**
-	 * @dataProvider provider_place_order_validation
-	 */
-	public function test_place_order_validation($userId, $name, $price, $expectedResult) {
-		$result = _place_order_validation($userId, $name, $price);
-		$this->assertEquals($result, $expectedResult);
-	}
-
-	public function test_place_order_smoke() {
-		$result = _place_order(0, 'test name', 1);
-		$this->assertEquals($result, [402, ['balance too low']]);
-
-		increaseUserBalance(ControllerTest::MERCHANT_USERID, ControllerTest::TEST_BALANCE);
-		$result = _place_order(ControllerTest::MERCHANT_USERID, 'test name', ControllerTest::TEST_BALANCE);
-		$this->assertEquals($result, [200, ['order created']]);
-
-	}
-}
-
-
-class ModelTest extends TestCase {
 
 	public function test_init_db() {
 		$result = initDB();
@@ -54,7 +17,7 @@ class ModelTest extends TestCase {
 
 	public function test_add_transaction_smoke() {
 		$res = addTransaction(ControllerTest::MERCHANT_USERID, 100);
-		$this->assertTrue($res);
+		$this->assertEquals(1, $res);
 	}
 
 	public function provider_check_user_role() {
@@ -84,12 +47,9 @@ class ModelTest extends TestCase {
 	 * @depends test_get_user_balance
 	 */
 	public function test_increase_user_balance() {
-		$currentBalance = getUserBalance(0);
-		$this->assertEquals(0, $currentBalance);
-
 		$currentBalance = getUserBalance(ControllerTest::MERCHANT_USERID);
 		$res = increaseUserBalance(ControllerTest::MERCHANT_USERID, ControllerTest::TEST_BALANCE);
-		$this->assertTrue($res);
+		$this->assertEquals(1, $res);
 
 		$this->assertEquals(
 			$currentBalance + ControllerTest::TEST_BALANCE,
@@ -103,11 +63,17 @@ class ModelTest extends TestCase {
 	public function test_decrease_user_balance() {
 		$currentBalance = getUserBalance(ControllerTest::MERCHANT_USERID);
 		$res = decreaseUserBalance(ControllerTest::MERCHANT_USERID, ControllerTest::TEST_BALANCE);
-		$this->assertTrue($res);
+		$this->assertEquals(1, $res);
 
 		$this->assertEquals(
 			$currentBalance - ControllerTest::TEST_BALANCE,
 			getUserBalance(ControllerTest::MERCHANT_USERID)
 		);
 	}
+
+	public function test_create_order() {
+		$res = createOrder(ControllerTest::MERCHANT_USERID, 'order title', 100500);
+		$this->assertEquals(1, $res);
+	}
 }
+
