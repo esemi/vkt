@@ -1,16 +1,18 @@
 <?php
 
 require_once 'controller.php';
+require_once 'model.php';
 
 use PHPUnit\Framework\TestCase;
 
 /*
- * Нет, я понимаю почему на продакшене нет ООП, но тесты то на локалке я погонять могу?)
+ * Нет, я понимаю почему на проде не ООП, но тесты то на локалке я погонять могу?)
  */
 class ControllerTest extends TestCase
 {
 	// todo fixture it
 	const MERCHANT_USERID = 1;
+	const TEST_BALANCE = 123;
 
 	public function provider_place_order_validation() {
 		return [
@@ -30,7 +32,27 @@ class ControllerTest extends TestCase
 	}
 
 	public function test_place_order_smoke() {
-		// todo not only smoke
-		$result = _place_order()
+		$result = _place_order(0, 'test name', 1);
+		$this->assertEquals($result, [402, ['balance too low']]);
+
+		increaseUserBalance(ControllerTest::MERCHANT_USERID, ControllerTest::TEST_BALANCE);
+		$result = _place_order(ControllerTest::MERCHANT_USERID, 'test name', ControllerTest::TEST_BALANCE);
+		$this->assertEquals($result, [200, ['order created']]);
+
+	}
+}
+
+
+class ModelTest extends TestCase {
+
+	public function test_init_db() {
+		$result = initDB();
+		$this->assertTrue($result);
+		$this->assertNotNull(getDb(DB_ORDER));
+	}
+
+	public function test_add_transaction_smoke() {
+		$res = addTransaction(ControllerTest::MERCHANT_USERID, 100);
+		$this->assertTrue($res);
 	}
 }

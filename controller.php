@@ -4,13 +4,17 @@ require_once 'model.php';
 
 // todo logging
 
-
+/**
+ * @return int
+ */
 function getCurrentUserId() {
-	// todo check user auth and get userId from session
+	// @fixme check user auth and get userId from session
 	return (int) $_GET['user_id'];
 }
 
-
+/**
+ * @return array
+ */
 function place_order_process() {
 	if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 		return [405, null];
@@ -20,13 +24,18 @@ function place_order_process() {
 	$price = (int) ($_POST['price'] ?? 0);
 
 	$validateResult = _place_order_validation($userId, $name, $price);
-	if (!is_bool($validateResult) || !$validateResult) {
+	if (is_array($validateResult)) {
 		return $validateResult;
 	}
 	return _place_order(getCurrentUserId(), $name, $price);
 }
 
-
+/**
+ * @param $userId integer
+ * @param $name string
+ * @param $price integer
+ * @return array|bool
+ */
 function _place_order_validation($userId, $name, $price) {
 	$userRoleCheckResult = checkUserRole($userId, ROLE_MERCHANT);
 	if (!$userRoleCheckResult) {
@@ -43,7 +52,12 @@ function _place_order_validation($userId, $name, $price) {
 	return True;
 }
 
-
+/**
+ * @param $userId integer
+ * @param $name string
+ * @param $price integer
+ * @return array
+ */
 function _place_order($userId, $name, $price) {
 	try {
 		$balanceDecreaseResult = decreaseUserBalance($userId, $price);
@@ -59,12 +73,10 @@ function _place_order($userId, $name, $price) {
 	} catch (Exception $e) {
 		try {
 			increaseUserBalance($userId, $price);
-		} catch (Exception $e) {
-
+		} catch (Exception $_) {
 			return [500, ['increase balance error']];
 		} finally {
-			// todo send warning
-			;
+			send_warning('create order error', $e);
 		}
 		return [500, ['create order error']];
 	}
