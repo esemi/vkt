@@ -2,14 +2,9 @@
 
 declare(strict_types=1);
 
-require_once 'controller.php';
+require_once __DIR__ . '/../src/controller.php';
 
 const PLACE_ORDER_ROUTE = 'place_order';
-
-
-function init() {
-	// todo init db connections
-}
 
 
 function serve() {
@@ -31,6 +26,5 @@ function serve() {
 	}
 	print(json_encode($response));
 }
-
 
 serve();

@@ -28,7 +28,7 @@ function initDB() {
 		try {
 			$dbConnections[$dbName] = new PDO("mysql:host={$creds[2]};dbname={$creds[3]}", $creds[0], $creds[1], $driver_options);
 		} catch (PDOException $e) {
-			send_warning('cant connect to db %s', $e);
+			send_warning("cant connect to db {$dbName}", $e);
 			return False;
 		}
 	}
@@ -49,7 +49,6 @@ function getDb($name) {
 
 
 function send_warning($message, $exception=null) {
-	//	todo
 	var_dump("warning {$message}", $exception);
 }
 

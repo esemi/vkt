@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../controller.php';
-require_once __DIR__ . '/../model.php';
+require_once __DIR__ . '/../src/controller.php';
+require_once __DIR__ . '/../src/model.php';
 
 /*
  * Нет, я понимаю почему на проде не ООП, но тесты то на локалке я погонять могу?)
@@ -35,7 +35,7 @@ class ControllerTest extends TestCase
 	}
 
 	public function test_place_order_smoke() {
-		increaseUserBalance(ControllerTest::MERCHANT_USERID, 1);
+		increaseUserBalance(ControllerTest::MERCHANT_USERID, ControllerTest::TEST_BALANCE);
 		$currentbalance = getUserBalance(ControllerTest::MERCHANT_USERID);
 
 		$result = _place_order(ControllerTest::MERCHANT_USERID, 'test name', $currentbalance + 1);
