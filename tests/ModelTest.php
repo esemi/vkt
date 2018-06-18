@@ -83,10 +83,10 @@ class ModelTest extends TestCase
 		$res = getOrder(0);
 		$this->assertNull($res);
 
-		$order = sql_execute(DB_ORDER,'select id, owner_user_id, customer_user_id from `order` limit 1', [], True)[0];
+		$order = sql_execute(DB_ORDER,'select id, owner_user_id, customer_user_id, price from `order` limit 1', [], True)[0];
 		$res = getOrder($order->id);
+		$order->price = decodeAmount($order->price);
 		$this->assertEquals($order, $res);
-
 	}
 
 	/**
@@ -107,6 +107,22 @@ class ModelTest extends TestCase
 		$res = closeOrder($order->id, PlaceOrderTest::CUSTOMER_USERID);
 		$this->assertEquals(1, $res);
 		$this->assertEquals(PlaceOrderTest::CUSTOMER_USERID, getOrder($order->id)->customer_user_id);
+	}
+
+	public function provider_deduct_margin() {
+		return [
+			[1000, 1, 0],
+			[10000, 1, 9000],
+			[100500400, 13, 87435348],
+		];
+	}
+
+	/**
+	 * @dataProvider provider_deduct_margin
+	 */
+	public function test_deduct_margin($amount, $percent, $exp) {
+		$res = deductMargin($amount, $percent);
+		$this->assertEquals($exp, $res);
 	}
 }
 

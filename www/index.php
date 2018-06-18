@@ -21,13 +21,12 @@ function serve() {
 			break;
 	};
 
-	http_response_code($code);
-	header('Content-Type: application/json');
-
 	$response = ['code' => $code];
 	if (!empty($data)) {
 		$response['data'] = $data;
 	}
+	http_response_code($code);
+	header('Content-Type: application/json');
 	print(json_encode($response));
 }
 

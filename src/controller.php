@@ -27,7 +27,7 @@ function place_order_process() {
 	if (is_array($validateResult)) {
 		return $validateResult;
 	}
-	return _place_order(getCurrentUserId(), $name, $price);
+	return _place_order($userId, $name, $price);
 }
 
 /**
@@ -47,6 +47,9 @@ function _place_order_validation($userId, $name, $price) {
 	}
 	if (empty($price) || $price > PHP_INT_MAX) {
 		return [400, ['invalid price']];
+	}
+	if ($price < decodeAmount(MIN_PRICE)) {
+		return [400, ['low price']];
 	}
 
 	return True;
@@ -96,7 +99,7 @@ function close_order_process() {
 	if (is_array($validateResult)) {
 		return $validateResult;
 	}
-	return _place_order(getCurrentUserId(), $name, $price);
+	return _close_order($userId, $orderId);
 }
 
 function _close_order_validation($userId, $orderId) {
@@ -114,4 +117,37 @@ function _close_order_validation($userId, $orderId) {
 	}
 
 	return True;
+}
+
+
+/**
+ * @param $userId integer
+ * @param $orderId integer
+ * @return array
+ */
+function _close_order($userId, $orderId) {
+	try {
+		$orderCloseResult = closeOrder($orderId, $userId);
+	} catch (Exception $e) {
+		return [500, ['close order error']];
+	}
+	if (!$orderCloseResult) {
+		return [409, ['u cant close this order']];
+	}
+
+	try {
+		$orderPrice = getOrder($orderId)->price;
+		increaseUserBalance($userId, $orderPrice, True);
+	} catch (Exception $e) {
+		try {
+			reopenOrder($orderId);
+		} catch (Exception $_) {
+			return [500, ['reopen order error']];
+		} finally {
+			send_warning('increase balance error', $e);
+		}
+		return [500, ['increase balance error']];
+	}
+
+	return [200, ['order closed']];
 }

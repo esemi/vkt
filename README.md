@@ -14,8 +14,11 @@ $ curl -X 'POST' --data "name=sdsdsd&price=1000" "localhost:8080/index.php?actio
 #### TODO
 
 - ~place order backend~
+- ~close order backend~
+
 - place order frontend
-- close order backend
 - close order frontend
+
 - mysql profiling
 - cleaning
+- deploy

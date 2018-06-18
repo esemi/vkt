@@ -4,6 +4,7 @@ const ROLE_CUSTOMER = 0;
 const ROLE_MERCHANT = 1;
 
 const AMOUNT_FACTOR = 1000;  //system float point for all prices
+const MIN_PRICE = AMOUNT_FACTOR;
 const MARGIN_FACTOR = 2;  // system price margin in percents
 
 const DB_TRANSACTION = 'transaction';
@@ -111,10 +112,21 @@ function getUserBalance($userId) {
 	}
 }
 
+function deductMargin($encodedPrice, $marginPercent) {
+	if ($encodedPrice < MIN_PRICE) {
+		throw new RuntimeException('Price too low');
+	}
+	$margin = max(MIN_PRICE, $encodedPrice * $marginPercent / 100);
+	return round($encodedPrice - $margin);
+}
+
 
 function increaseUserBalance($userId, $amount, $deductMargin=False) {
 	$preparedAmount = encodeAmount($amount);
-	$res = sql_execute(DB_USER,'update user set balance = balance + ? where id = ?', [$preparedAmount, $userId]);
+	if ($deductMargin) {
+		$preparedAmount = deductMargin($preparedAmount, MARGIN_FACTOR);
+	}
+	$res = sql_execute(DB_USER,'update user set balance = balance + ? where id = ? limit 1', [$preparedAmount, $userId]);
 	if ($res) {
 		try {
 			addTransaction($userId, $amount);
@@ -129,7 +141,7 @@ function decreaseUserBalance($userId, $amount) {
 	$preparedAmount = encodeAmount($amount);
 	$res = sql_execute(
 		DB_USER,
-		'update user set balance = balance - ? where id = ? AND balance >= ?',
+		'update user set balance = balance - ? where id = ? AND balance >= ? limit 1',
 		[$preparedAmount, $userId, $preparedAmount]);
 	if ($res) {
 		try {
@@ -153,16 +165,26 @@ function createOrder($ownerUserId, $name, $price) {
 function closeOrder($orderId, $customerUserId) {
 	return sql_execute(
 		DB_USER,
-		'update `order` set customer_user_id = ? where id = ? AND owner_user_id != ? AND customer_user_id IS NULL',
+		'update `order` set customer_user_id = ? where id = ? AND owner_user_id != ? AND customer_user_id IS NULL limit 1',
 		[$customerUserId, $orderId, $customerUserId]
 	);
 }
 
+function reopenOrder($orderId) {
+	return sql_execute(DB_USER, 'update `order` set customer_user_id = NULL where id = ? limit 1', [$orderId]);
+}
+
+
 function getOrder($orderId) {
-	return sql_execute(
+	$res = sql_execute(
 		DB_ORDER,
-		'select id, owner_user_id, customer_user_id from `order` where id = ?',
+		'select id, owner_user_id, customer_user_id, price from `order` where id = ?',
 		[$orderId],
 		True
-	)[0] ?? null;
+		)[0] ?? null;
+
+	if ($res) {
+		$res->price = decodeAmount($res->price);
+	}
+	return $res;
 }

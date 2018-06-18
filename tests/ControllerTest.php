@@ -22,6 +22,8 @@ class PlaceOrderTest extends TestCase
 			[0, '', '', [403, ['invalid role for this action']]],
 			[PlaceOrderTest::MERCHANT_USERID, '', '', [400, ['invalid name']]],
 			[PlaceOrderTest::MERCHANT_USERID, 'valid name', '', [400, ['invalid price']]],
+			[PlaceOrderTest::MERCHANT_USERID, 'valid name', '0.1', [400, ['low price']]],
+			[PlaceOrderTest::MERCHANT_USERID, 'valid name', decodeAmount(MIN_PRICE), True],
 			[PlaceOrderTest::MERCHANT_USERID, 'valid name', '100500', True],
 		];
 	}
@@ -70,15 +72,25 @@ class CloseOrderTest extends TestCase
 	}
 
 
-//	public function test_close_order_smoke() {
-//		increaseUserBalance(PlaceOrderTest::CUSTOMER_USERID, PlaceOrderTest::TEST_BALANCE);
-//		$currentbalance = getUserBalance(PlaceOrderTest::CUSTOMER_USERID);
-//
-//		$result = _close_order(PlaceOrderTest::CUSTOMER_USERID, 'test name', $currentbalance + 1);
-//		$this->assertEquals([402, ['already closed']], $result);
-//
-//		$result = _close_order(PlaceOrderTest::CUSTOMER_USERID, 'test name', $currentbalance - 1);
-//		$this->assertEquals([200, ['order created']], $result);
-//		$this->assertEquals($currentbalance + , getUserBalance(PlaceOrderTest::CUSTOMER_USERID));
-//	}
+	public function test_close_order_smoke() {
+		$currentbalance = getUserBalance(PlaceOrderTest::CUSTOMER_USERID);
+		createOrder(PlaceOrderTest::MERCHANT_USERID, 'test name', PlaceOrderTest::TEST_BALANCE);
+		$testOrder = sql_execute(
+			DB_ORDER,
+			'select id, owner_user_id, price from `order` where owner_user_id = ? AND customer_user_id IS NULL order by price desc limit 1',
+			[PlaceOrderTest::MERCHANT_USERID],
+			True
+		)[0];
+
+		$result = _close_order(PlaceOrderTest::MERCHANT_USERID, $testOrder->id);
+		$this->assertEquals([409, ['u cant close this order']], $result);
+
+		$result = _close_order(PlaceOrderTest::CUSTOMER_USERID, $testOrder->id);
+		$this->assertEquals([200, ['order closed']], $result);
+		$addedPrice = decodeAmount(deductMargin($testOrder->price, 2));
+		$this->assertEquals($currentbalance + $addedPrice, getUserBalance(PlaceOrderTest::CUSTOMER_USERID));
+
+		$result = _close_order(PlaceOrderTest::CUSTOMER_USERID, $testOrder->id);
+		$this->assertEquals([409, ['u cant close this order']], $result);
+	}
 }
