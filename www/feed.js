@@ -7,6 +7,12 @@ function getCurrentUser() {
     return document.querySelector('.js-select-role').value;
 }
 
+function setErrorMessage(msg) {
+    let errorContainer = document.querySelector('.js-post-order-error');
+    errorContainer.innerHTML = '';
+    errorContainer.appendChild(document.createTextNode(msg));
+}
+
 
 function initOrdersFeed(e) {
     if (!!e) {
@@ -35,6 +41,12 @@ function initOrdersFeed(e) {
                 item.setAttribute('data-js-order-id', encodeURIComponent(el.id));
                 item.querySelector('.js-item-title').appendChild(document.createTextNode(el.name));
                 item.querySelector('.js-item-price').appendChild(document.createTextNode(el.price));
+
+                let orderClosed = !!el.customer_user_id;
+                if (orderClosed) {
+                    item.querySelector('.js-close-order').remove();
+                }
+
                 container.appendChild(item);
             });
         })
@@ -47,6 +59,7 @@ function postNewOrder(e) {
     let current_user_id = getCurrentUser();
     let order_name = document.querySelector('.js-post-order-form input[name=name]').value;
     let order_price = document.querySelector('.js-post-order-form input[name=price]').value;
+    setErrorMessage('');
 
     let form = new FormData();
     form.append('name', order_name);
@@ -58,14 +71,11 @@ function postNewOrder(e) {
     })
         .then(async function(response) {
             if (response.status != 201) {
-                let errorContainer = document.querySelector('.js-post-order-error');
-                errorContainer.innerHTML = '';
                 let errors = (await response.json())['data'];
-                console.log(errors);
                 if (!!errors) {
-                    errorContainer.appendChild(document.createTextNode(errors[0]))
+                    setErrorMessage(errors[0]);
                 } else {
-                    errorContainer.appendChild(document.createTextNode(`unknown error ${response.status}`))
+                    setErrorMessage(`unknown error ${response.status}`);
                 }
             } else {
                 document.querySelector('.js-post-order-form input[name=name]').value = '';
@@ -77,6 +87,35 @@ function postNewOrder(e) {
 }
 
 
+function closeOrder(e) {
+    let current_user_id = getCurrentUser();
+    let current_item = e.target.closest('.js-item');
+
+    setErrorMessage('');
+
+    let form = new FormData();
+    form.append('order', current_item.getAttribute('data-js-order-id'));
+    fetch(`${API_ENDPOINT}?action=close_order&user_id=${current_user_id}`, {
+        credentials: 'same-origin',
+        method: "POST",
+        body: form
+    })
+        .then(async function(response) {
+            if (response.status != 200) {
+                let errors = (await response.json())['data'];
+                console.log(errors);
+                if (!!errors) {
+                    setErrorMessage(errors[0]);
+                } else {
+                    setErrorMessage(`unknown error ${response.status}`);
+                }
+            } else {
+                initOrdersFeed();
+            }
+        });
+
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     initOrdersFeed();
 
@@ -84,10 +123,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelector('.js-post-order-form').addEventListener('submit', postNewOrder);
 
-    // document.addEventListener('input',  function(e) {
-    //     if (e.target.matches(`li[${task_uid_attr}] input`)) {
-    //         handleChangeTaskTitle(e, list_uid_edit.getAttribute(list_uid_attr));
-    //     }
-    // });
+    document.querySelector('.js-feed').addEventListener('click',  function(e) {
+        if (e.target.matches('input.js-close-order')) {
+            closeOrder(e);
+        }
+    });
 
 });

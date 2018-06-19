@@ -4,7 +4,7 @@ require_once 'model.php';
 
 // todo logging
 
-const LIMIT_FEED = 10;
+const LIMIT_FEED = 20;
 
 /**
  * @return int
@@ -91,7 +91,7 @@ function _place_order($userId, $name, $price) {
 
 
 function close_order_process() {
-	if ($_SERVER['REQUEST_METHOD'] != 'PUT') {
+	if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 		return [405, null];
 	}
 	$userId = getCurrentUserId();

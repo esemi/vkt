@@ -156,7 +156,7 @@ function decreaseUserBalance($userId, $amount) {
 		[$preparedAmount, $userId, $preparedAmount]);
 	if ($res) {
 		try {
-			addTransaction($userId, $amount);
+			addTransaction($userId, -$amount);
 		} catch (Exception $e) {
 			send_warning('decrease balance exception', $e);
 		}
