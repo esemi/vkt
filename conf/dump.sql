@@ -26,3 +26,5 @@ CREATE TABLE  IF NOT EXISTS `order`
 
 INSERT IGNORE INTO user (id, role, balance) VALUES (1, 1, 100500000);
 INSERT IGNORE INTO user (id, role, balance) VALUES (2, 0, 0);
+
+CREATE INDEX order_owner_user_id_customer_user_id_index ON `order` (owner_user_id, customer_user_id);
