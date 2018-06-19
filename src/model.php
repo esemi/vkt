@@ -11,10 +11,19 @@ const DB_TRANSACTION = 'transaction';
 const DB_USER = 'user';
 const DB_ORDER = 'order';
 
-const DB_CONFIG = [
-	DB_TRANSACTION => ['root', 'root', 'localhost', 'vk_test'],
-	DB_USER => ['root', 'root', 'localhost', 'vk_test'],
-	DB_ORDER => ['root', 'root', 'localhost', 'vk_test'],
+
+function getenvDefault($name, $default) {
+	return empty(getenv($name)) ? $default : getenv($name);
+}
+
+$dbName = getenvDefault('DB_NAME', 'vk_test');
+$dbUser = getenvDefault('DB_USER', 'root');
+$dbPswd = getenvDefault('DB_PSWD', 'root');
+
+$DB_CONFIG = [
+	DB_TRANSACTION => [$dbUser, $dbPswd, 'localhost', $dbName],
+	DB_USER => [$dbUser, $dbPswd, 'localhost', $dbName],
+	DB_ORDER => [$dbUser, $dbPswd, 'localhost', $dbName],
 ];
 
 $dbConnections = [];
@@ -23,9 +32,9 @@ $dbConnections = [];
  * @return bool
  */
 function initDB() {
-	global $dbConnections;
+	global $dbConnections, $DB_CONFIG;
 	$driver_options = [PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
-	foreach (DB_CONFIG as $dbName => $creds) {
+	foreach ($DB_CONFIG as $dbName => $creds) {
 		try {
 			$dbConnections[$dbName] = new PDO("mysql:host={$creds[2]};dbname={$creds[3]}", $creds[0], $creds[1], $driver_options);
 			$dbConnections[$dbName]->setAttribute(PDO::ATTR_EMULATE_PREPARES, False);
@@ -51,7 +60,8 @@ function getDb($name) {
 
 
 function send_warning($message, $exception=null) {
-	var_dump("warning {$message}", $exception);
+	// todo send warning to slack
+	print("warning {$message}");
 }
 
 

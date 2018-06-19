@@ -20,6 +20,6 @@ $ curl -X 'POST' --data "order=1" "localhost:8080/index.php?action=close_order&u
 - place order frontend
 - close order frontend
 
-- deploy
+- ~deploy~
 - cleaning
 - mysql profiling

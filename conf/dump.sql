@@ -24,5 +24,5 @@ CREATE TABLE  IF NOT EXISTS `order`
   price int
 );
 
-INSERT INTO vk_test.user (id, role, balance) VALUES (1, 1, 0);
-INSERT INTO vk_test.user (id, role, balance) VALUES (2, 0, 0);
+INSERT IGNORE INTO user (id, role, balance) VALUES (1, 1, 100500);
+INSERT IGNORE INTO user (id, role, balance) VALUES (2, 0, 0);
