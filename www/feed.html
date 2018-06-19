@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feed</title>
+</head>
+<body>
+    <header>
+        <label>
+            select role
+            <select class="js-select-role">
+                <option value="1">merchant</option>
+                <option value="2">customer</option>
+            </select>
+        </label>
+    </header>
+
+    <div class="js-feed">
+        <!--todo inf paginating-->
+    </div>
+
+    <article class="js-item-template" style="display: none" data-js-order-id="">
+        <h3 class="js-item-title"></h3>
+        <span class="js-item-price"></span>
+        <input class="js-close" type="button" value="close order"/>
+    </article>
+
+    <script src="feed.js" crossorigin="anonymous"></script>
+</body>
+</html>
