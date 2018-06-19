@@ -2,7 +2,8 @@
 
 require_once 'model.php';
 
-// todo logging
+// @todo logging
+// @todo change code style from py to php
 
 const LIMIT_FEED = 20;
 
@@ -10,7 +11,7 @@ const LIMIT_FEED = 20;
  * @return int
  */
 function getCurrentUserId() {
-	// @fixme check user auth and get userId from session
+	// @todo check user auth and get userId from session
 	return (int) ($_GET['user_id'] ?? 0);
 }
 
@@ -89,7 +90,9 @@ function _place_order($userId, $name, $price) {
 	return [201, ['order created']];
 }
 
-
+/**
+ * @return array
+ */
 function close_order_process() {
 	if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 		return [405, null];
@@ -104,6 +107,11 @@ function close_order_process() {
 	return _close_order($userId, $orderId);
 }
 
+/**
+ * @param $userId
+ * @param $orderId
+ * @return array|bool
+ */
 function _close_order_validation($userId, $orderId) {
 	$userRoleCheckResult = checkUserRole($userId, ROLE_CUSTOMER);
 	if (!$userRoleCheckResult) {
@@ -154,7 +162,9 @@ function _close_order($userId, $orderId) {
 	return [200, ['order closed']];
 }
 
-
+/**
+ * @return array
+ */
 function get_feed_process() {
 	if ($_SERVER['REQUEST_METHOD'] != 'GET') {
 		return [405, null];

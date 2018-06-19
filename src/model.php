@@ -36,8 +36,10 @@ function initDB() {
 	$driver_options = [PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
 	foreach ($DB_CONFIG as $dbName => $creds) {
 		try {
-			$dbConnections[$dbName] = new PDO("mysql:host={$creds[2]};dbname={$creds[3]}", $creds[0], $creds[1], $driver_options);
-			$dbConnections[$dbName]->setAttribute(PDO::ATTR_EMULATE_PREPARES, False);
+			// вот тут не обошёлся без ООП, если очень нужно - придётся менять на mysqli
+			$conn = new PDO("mysql:host={$creds[2]};dbname={$creds[3]}", $creds[0], $creds[1], $driver_options);
+			$conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, False);
+			$dbConnections[$dbName] = $conn;
 		} catch (PDOException $e) {
 			send_warning("cant connect to db {$dbName}", $e);
 			return False;
@@ -60,7 +62,7 @@ function getDb($name) {
 
 
 function send_warning($message, $exception=null) {
-	// todo send warning to slack
+	// @todo send warning to slack
 	print("warning {$message}");
 }
 
@@ -140,7 +142,7 @@ function increaseUserBalance($userId, $amount, $deductMargin=False) {
 	$res = sql_execute(DB_USER,'update user set balance = balance + ? where id = ? limit 1', [$preparedAmount, $userId]);
 	if ($res) {
 		try {
-			addTransaction($userId, $amount);
+			addTransaction($userId, decodeAmount($preparedAmount));
 		} catch (Exception $e) {
 			send_warning('add transaction exception', $e);
 		}

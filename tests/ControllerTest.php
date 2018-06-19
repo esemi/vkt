@@ -12,7 +12,6 @@ use PHPUnit\Framework\TestCase;
 
 class PlaceOrderTest extends TestCase
 {
-	// todo fixture it
 	const MERCHANT_USERID = 1;
 	const CUSTOMER_USERID = 2;
 	const TEST_BALANCE = 123;
