@@ -28,9 +28,10 @@ function initOrdersFeed(e) {
             container.innerHTML = '';
             let orders = response_json['data']['orders'];
             orders.forEach(function(el, index, array) {
-                console.log(el);
-                let item = document.querySelector('js-item-template').cloneNode(true);
-                item.classList.remove("js-item-template").add("js-item");
+                let item = document.querySelector('.js-item-template').cloneNode(true);
+                item.classList.remove("js-item-template");
+                item.classList.remove("hide");
+                item.classList.add("js-item");
                 item.setAttribute('data-js-order-id', encodeURIComponent(el.id));
                 item.querySelector('.js-item-title').appendChild(document.createTextNode(el.name));
                 item.querySelector('.js-item-price').appendChild(document.createTextNode(el.price));
