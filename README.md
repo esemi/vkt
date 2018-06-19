@@ -1,4 +1,4 @@
-vkt [![Build Status](https://travis-ci.org/esemi/vkt.svg?branch=master)](https://travis-ci.org/esemi/vkt)
+vkt [![Build Status](https://travis-ci.org/esemi/vkt.svg?branch=master)](https://travis-ci.org/esemi/vkt) [live demo](https://vkt.esemi.ru/)
 ---
 
 
@@ -24,5 +24,6 @@ $ siege -c100 https://vkt.esemi.ru/api.php?action=feed&user_id=1
 - ~place order frontend~
 - ~close order frontend~
 - ~clean code~
-- ~nginx limit req + siege~
+- ~siege~
+- ~nginx limit req~
 - mysql profiling
