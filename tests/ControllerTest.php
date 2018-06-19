@@ -44,7 +44,7 @@ class PlaceOrderTest extends TestCase
 		$this->assertEquals([402, ['balance too low']], $result);
 
 		$result = _place_order(PlaceOrderTest::MERCHANT_USERID, 'test name', $currentbalance - 1);
-		$this->assertEquals([200, ['order created']], $result);
+		$this->assertEquals([201, ['order created']], $result);
 		$this->assertEquals(1, getUserBalance(PlaceOrderTest::MERCHANT_USERID));
 	}
 }
@@ -108,6 +108,7 @@ class FeedTest extends TestCase
 		$_GET['user_id'] = PlaceOrderTest::CUSTOMER_USERID;
 		$res = get_feed_process();
 		$this->assertEquals(200, $res[0]);
+		$this->assertGreaterThanOrEqual(0, $res[1]['balance']);
 		$this->assertLessThanOrEqual(100, count($res[1]['orders']));
 		foreach ($res[1]['orders'] as $order) {
 			$this->assertArrayHasKey('id', $order);
@@ -122,6 +123,7 @@ class FeedTest extends TestCase
 		$_GET['user_id'] = PlaceOrderTest::MERCHANT_USERID;
 		$res = get_feed_process();
 		$this->assertEquals(200, $res[0]);
+		$this->assertGreaterThanOrEqual(0, $res[1]['balance']);
 		$this->assertLessThanOrEqual(100, count($res[1]['orders']));
 		foreach ($res[1]['orders'] as $order) {
 			$this->assertArrayHasKey('id', $order);

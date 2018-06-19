@@ -13,7 +13,21 @@
                 <option value="2">customer</option>
             </select>
         </label>
+        <label>
+            balance
+            <span class="js-user-balance"></span>
+        </label>
     </header>
+
+    <div>
+        <h3>New order</h3>
+        <p class="js-post-order-error" style="color:darkred"></p>
+        <form class="js-post-order-form" method="POST">
+            <input name='name' type="text" value="" placeholder="input name" maxlength="255" required/>
+            <input name='price' type="number" value="" placeholder="input price" min="1" required/>
+            <input type="submit" value="post new order"/>
+        </form>
+    </div>
 
     <div class="js-feed">
         <!--todo inf paginating-->

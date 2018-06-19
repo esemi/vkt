@@ -4,7 +4,7 @@ require_once 'model.php';
 
 // todo logging
 
-const LIMIT_FEED = 100;
+const LIMIT_FEED = 10;
 
 /**
  * @return int
@@ -86,12 +86,12 @@ function _place_order($userId, $name, $price) {
 		return [500, ['create order error']];
 	}
 
-	return [200, ['order created']];
+	return [201, ['order created']];
 }
 
 
 function close_order_process() {
-	if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+	if ($_SERVER['REQUEST_METHOD'] != 'PUT') {
 		return [405, null];
 	}
 	$userId = getCurrentUserId();
@@ -167,5 +167,9 @@ function get_feed_process() {
 	} else {
 		return [401, ['user not found']];
 	}
-	return [200, ['orders' => array_map(function($x) {return (array) $x;}, $orders)]];
+	return [200, [
+		'orders' => array_map(function($x) {return (array) $x;}, $orders),
+		'balance' => getUserBalance($userId),
+		]
+	];
 }

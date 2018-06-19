@@ -24,5 +24,5 @@ CREATE TABLE  IF NOT EXISTS `order`
   price int
 );
 
-INSERT IGNORE INTO user (id, role, balance) VALUES (1, 1, 100500);
+INSERT IGNORE INTO user (id, role, balance) VALUES (1, 1, 100500000);
 INSERT IGNORE INTO user (id, role, balance) VALUES (2, 0, 0);
