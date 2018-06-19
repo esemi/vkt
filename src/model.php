@@ -28,6 +28,7 @@ function initDB() {
 	foreach (DB_CONFIG as $dbName => $creds) {
 		try {
 			$dbConnections[$dbName] = new PDO("mysql:host={$creds[2]};dbname={$creds[3]}", $creds[0], $creds[1], $driver_options);
+			$dbConnections[$dbName]->setAttribute(PDO::ATTR_EMULATE_PREPARES, False);
 		} catch (PDOException $e) {
 			send_warning("cant connect to db {$dbName}", $e);
 			return False;
@@ -187,4 +188,25 @@ function getOrder($orderId) {
 		$res->price = decodeAmount($res->price);
 	}
 	return $res;
+}
+
+
+function getCustomerOrdersFeed($userId, $limit) {
+	$rows = sql_execute(
+		DB_ORDER,
+		'select id, name, owner_user_id, customer_user_id, price from `order` where owner_user_id != ? AND customer_user_id IS NULL order by id desc limit ?',
+		[$userId, $limit],
+		True
+	);
+	return array_map(function($x) {$x->price = decodeAmount($x->price); return $x;}, $rows);
+}
+
+function getMerchantOrdersFeed($userId, $limit) {
+	$rows = sql_execute(
+		DB_ORDER,
+		'select id, name, owner_user_id, customer_user_id, price from `order` where owner_user_id = ? order by id desc limit ?',
+		[$userId, $limit],
+		True
+	);
+	return array_map(function($x) {$x->price = decodeAmount($x->price); return $x;}, $rows);
 }

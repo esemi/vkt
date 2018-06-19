@@ -4,12 +4,14 @@ require_once 'model.php';
 
 // todo logging
 
+const LIMIT_FEED = 100;
+
 /**
  * @return int
  */
 function getCurrentUserId() {
 	// @fixme check user auth and get userId from session
-	return (int) $_GET['user_id'];
+	return (int) ($_GET['user_id'] ?? 0);
 }
 
 /**
@@ -150,4 +152,20 @@ function _close_order($userId, $orderId) {
 	}
 
 	return [200, ['order closed']];
+}
+
+
+function get_feed_process() {
+	if ($_SERVER['REQUEST_METHOD'] != 'GET') {
+		return [405, null];
+	}
+	$userId = getCurrentUserId();
+	if (checkUserRole($userId, ROLE_CUSTOMER) ) {
+		$orders = getCustomerOrdersFeed($userId, LIMIT_FEED);
+	} else if (checkUserRole($userId, ROLE_MERCHANT)) {
+		$orders = getMerchantOrdersFeed($userId, LIMIT_FEED);
+	} else {
+		return [401, ['user not found']];
+	}
+	return [200, ['orders' => array_map(function($x) {return (array) $x;}, $orders)]];
 }

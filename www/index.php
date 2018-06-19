@@ -6,6 +6,7 @@ require_once __DIR__ . '/../src/controller.php';
 
 const PLACE_ORDER_ROUTE = 'place_order';
 const CLOSE_ORDER_ROUTE = 'close_order';
+const FEED_ROUTE = 'feed';
 
 
 function serve() {
@@ -15,6 +16,9 @@ function serve() {
 			break;
 		case CLOSE_ORDER_ROUTE:
 			list($code, $data) = close_order_process();
+			break;
+		case FEED_ROUTE:
+			list($code, $data) = get_feed_process();
 			break;
 		default:
 			list($code, $data) = [404, []];

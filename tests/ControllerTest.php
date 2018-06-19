@@ -94,3 +94,43 @@ class CloseOrderTest extends TestCase
 		$this->assertEquals([409, ['u cant close this order']], $result);
 	}
 }
+
+
+class FeedTest extends TestCase
+{
+	public function test_feed_orders_smoke() {
+		global $_SERVER, $_GET;
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		$res = get_feed_process();
+		$this->assertEquals([401, ['user not found']], $res);
+
+		$_GET['user_id'] = PlaceOrderTest::CUSTOMER_USERID;
+		$res = get_feed_process();
+		$this->assertEquals(200, $res[0]);
+		$this->assertLessThanOrEqual(100, count($res[1]['orders']));
+		foreach ($res[1]['orders'] as $order) {
+			$this->assertArrayHasKey('id', $order);
+			$this->assertArrayHasKey('name', $order);
+			$this->assertArrayHasKey('owner_user_id', $order);
+			$this->assertArrayHasKey('customer_user_id', $order);
+			$this->assertArrayHasKey('price', $order);
+			$this->assertNull($order['customer_user_id']);
+			$this->assertNotEquals(PlaceOrderTest::CUSTOMER_USERID, $order['owner_user_id']);
+		}
+
+		$_GET['user_id'] = PlaceOrderTest::MERCHANT_USERID;
+		$res = get_feed_process();
+		$this->assertEquals(200, $res[0]);
+		$this->assertLessThanOrEqual(100, count($res[1]['orders']));
+		foreach ($res[1]['orders'] as $order) {
+			$this->assertArrayHasKey('id', $order);
+			$this->assertArrayHasKey('name', $order);
+			$this->assertArrayHasKey('owner_user_id', $order);
+			$this->assertArrayHasKey('customer_user_id', $order);
+			$this->assertArrayHasKey('price', $order);
+			$this->assertEquals(PlaceOrderTest::MERCHANT_USERID, $order['owner_user_id']);
+		}
+
+	}
+}
