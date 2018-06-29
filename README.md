@@ -1,4 +1,4 @@
-vkt [![Build Status](https://travis-ci.org/esemi/vkt.svg?branch=master)](https://travis-ci.org/esemi/vkt) [live demo](https://vkt.esemi.ru/)
+vkt [![Build Status](https://travis-ci.org/esemi/vkt.svg?branch=master)](https://travis-ci.org/esemi/vkt)
 ---
 
 
