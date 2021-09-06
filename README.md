@@ -1,5 +1,6 @@
 vkt [![Build Status](https://travis-ci.org/esemi/vkt.svg?branch=master)](https://travis-ci.org/esemi/vkt)
 ---
+Yet another test task
 
 
 ```
@@ -12,18 +13,4 @@ $ curl -X 'PUT' --data "order=1" "localhost:8080/index.php?action=close_order&us
 $ curl "localhost:8080/index.php?action=feed&user_id=222"
 $
 $ siege -c100 https://vkt.esemi.ru/api.php?action=feed&user_id=1
-
 ```
-
-
-#### TODO
-
-- ~place order backend~
-- ~close order backend~
-- ~deploy~
-- ~place order frontend~
-- ~close order frontend~
-- ~clean code~
-- ~siege~
-- ~nginx limit req~
-- mysql profiling
